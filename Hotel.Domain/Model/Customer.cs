@@ -35,7 +35,7 @@ namespace Hotel.Domain.Model
             else
                 throw new CustomerException("AddMember");
         }
-        public void RemoveMember(Member member)
+        public void RemoveMember(Member member) 
         {
             if (_members.Contains(member))
                 _members.Remove(member);

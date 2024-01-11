@@ -9,7 +9,7 @@ namespace Hotel.Domain.Model
 {
     public class Address
     {
-        private const char splitChar = '|';
+        private const char splitChar= '|';
         public Address(string city, string street, string postalCode, string houseNumber)
         {
             City = city;
@@ -20,12 +20,21 @@ namespace Hotel.Domain.Model
 
         public Address(string addressLine)
         {
-            string[] parts = addressLine.Split(splitChar);
-            City = parts[0];
-            Street = parts[2];
-            PostalCode = parts[1];
-            HouseNumber = parts[3];
+            string[] parts = addressLine.Split(new[] { ' ', '[', ']', '-', splitChar }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length >= 4)
+            {
+                City = parts[0];
+                Street = parts[3];
+                PostalCode = parts[1];
+                HouseNumber = parts[2];
+            }
+            else
+            {
+                throw new CustomerException("Invalid address format");
+            }
         }
+
+
 
         private string _city;
         public string City { get { return _city; } set { if (string.IsNullOrWhiteSpace(value)) throw new CustomerException("Mun is empty"); _city = value; } }

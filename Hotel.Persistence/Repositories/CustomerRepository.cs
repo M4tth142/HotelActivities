@@ -19,23 +19,24 @@ namespace Hotel.Persistence.Repositories
             this.connectionString = connectionString;
         }
 
+
         public IReadOnlyList<Customer> GetCustomers(string filter)
         {
             try
             {
-                Dictionary<int, Customer> customers = new Dictionary<int, Customer>();
+                Dictionary<int,Customer> customers = new Dictionary<int, Customer>();
                 string sql = "select t1.id,t1.name customername,t1.email,t1.phone,t1.address,t2.name membername,t2.birthday\r\nfrom customer t1 left join (select * from member where status=1) t2 on t1.id=t2.customerId\r\nwhere t1.status=1";
-                if (!string.IsNullOrWhiteSpace(filter))
+                if (!string.IsNullOrWhiteSpace(filter)) 
                 {
                     sql += " and (t1.id like @filter or t1.name like @filter or t1.email like @filter)";
                 }
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                using (SqlCommand cmd = conn.CreateCommand())
-                {
+                using(SqlConnection conn = new SqlConnection(connectionString)) 
+                using(SqlCommand cmd = conn.CreateCommand()) 
+                { 
                     conn.Open();
                     cmd.CommandText = sql;
-                    if (!string.IsNullOrWhiteSpace(filter)) cmd.Parameters.AddWithValue("@filter", $"%{filter}%");
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    if (!string.IsNullOrWhiteSpace(filter)) cmd.Parameters.AddWithValue("@filter",$"%{filter}%");
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
@@ -55,7 +56,7 @@ namespace Hotel.Persistence.Repositories
                 }
                 return customers.Values.ToList();
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 throw new CustomerRepositoryException("getcustomer", ex);
             }
@@ -79,8 +80,8 @@ namespace Hotel.Persistence.Repositories
                         cmd.Parameters.AddWithValue("@phone", customer.Contact.Phone);
                         cmd.Parameters.AddWithValue("@address", customer.Contact.Address.ToAddressLine());
                         cmd.Parameters.AddWithValue("@status", 1);
-                        int id = (int)cmd.ExecuteScalar();
-                        customer.Id = id;
+                        int id=(int)cmd.ExecuteScalar();
+                        customer.Id = id;   
                         foreach (Member member in customer.GetMembers())
                         {
                             sql = "INSERT INTO Member(customerId,name,birthday,status) VALUES (@customerid,@name,@birthday,@status)";
@@ -97,7 +98,62 @@ namespace Hotel.Persistence.Repositories
                     catch (Exception ex) { sqlTransaction.Rollback(); throw; }
                 }
             }
-            catch (Exception ex) { throw new CustomerRepositoryException("addcustomer", ex); }
+            catch(Exception ex) { throw new CustomerRepositoryException("addcustomer", ex); }
         }
+
+        public void DeleteCustomer(int customerId)
+        {
+            try
+            {
+                string sql = "UPDATE Customer SET status = 0 WHERE id = @customerId";
+
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    cmd.CommandText = sql;
+                    cmd.Parameters.AddWithValue("@customerId", customerId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CustomerRepositoryException("deletecustomer", ex);
+            }
+        }
+
+        public void UpdateCustomer(Customer customer)
+        {
+            try
+            {
+                string sql = "UPDATE Customer SET name = @name, email = @email,"
+                    + " phone = @phone, address = @address WHERE id = @customerId";
+
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    conn.Open();
+                    SqlTransaction sqlTransaction = conn.BeginTransaction();
+                    try
+                    {
+                        cmd.Transaction = sqlTransaction;
+                        cmd.CommandText = sql;
+                        cmd.Parameters.AddWithValue("@name", customer.Name);
+                        cmd.Parameters.AddWithValue("@customerId", customer.Id);
+                        cmd.Parameters.AddWithValue("@phone", customer.Contact.Phone);
+                        cmd.Parameters.AddWithValue("@address", customer.Contact.Address.ToAddressLine());
+                        cmd.ExecuteNonQuery();
+
+                        sqlTransaction.Commit();
+                    }
+                    catch (Exception ex) { sqlTransaction.Rollback(); throw; }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new CustomerRepositoryException("updatecustomer", ex);
+            }
+        }
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hotel.Domain.Model;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -35,12 +36,28 @@ namespace Hotel.Presentation.Customer.Model
         public string Email { get { return _email; } set { _email = value; OnPropertyChanged(); } }
         public string Address { get; set; }
         private string _phone;
-        public string Phone { get { return _phone; } set { _phone = value; OnPropertyChanged(); } }
+        public string Phone { get { return _phone; } set {_phone=value; OnPropertyChanged();} }
         public int NrOfMembers { get; set; }
         private void OnPropertyChanged(string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
         public event PropertyChangedEventHandler? PropertyChanged;
+
+
+        public Hotel.Domain.Model.Customer ToCustomer()
+        {
+            ContactInfo contactInfo = new ContactInfo(Email, Phone, new Address(Address));
+            Hotel.Domain.Model.Customer customer = new Hotel.Domain.Model.Customer(Name, contactInfo);
+            return customer;
+        }
+
+        public static CustomerUI FromCustomer(Hotel.Domain.Model.Customer customer)
+        {
+            // Note: This method assumes that the provided Customer has a non-null Contact.
+            Address address = customer.Contact.Address;
+            return new CustomerUI(customer.Id, customer.Name, customer.Contact.Email, address.ToAddressLine(), customer.Contact.Phone, customer.GetMembers().Count);
+        }
+
     }
 }
