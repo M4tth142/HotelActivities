@@ -28,7 +28,8 @@ namespace Hotel.Presentation.Customer
     public partial class CustomerWindow : Window
     {
         public CustomerUI CustomerUI { get; set; }
-       
+        public AddressUI AddressUI { get; set; }
+
 
         // Now you can use myCustomerManager.CreateCustomer(customer);
 
@@ -68,9 +69,17 @@ namespace Hotel.Presentation.Customer
             {
                 //Update
                 //update DB
-                CustomerUI.Email=EmailTextBox.Text;
-                CustomerUI.Phone=PhoneTextBox.Text;
-                CustomerUI.Name=NameTextBox.Text;
+
+
+                CustomerUI.Email = EmailTextBox.Text;
+                CustomerUI.Phone = PhoneTextBox.Text;
+                CustomerUI.Name = NameTextBox.Text;
+                
+                AddressUI.Street = StreetTextBox.Text;
+                AddressUI.City = CityTextBox.Text;
+                AddressUI.ZipCode = ZipTextBox.Text;
+                AddressUI.HouseNumber = HouseNumberTextBox.Text;
+                
 
                 customerManager.UpdateCustomer(CustomerUI.ToCustomer());
 

@@ -15,7 +15,6 @@ namespace Hotel.Domain.Managers
             _customerRepository = customerRepository;
         }
 
-
         public IReadOnlyList<Customer> GetCustomers(string filter)
         {
             try
@@ -88,7 +87,7 @@ namespace Hotel.Domain.Managers
             catch (Exception ex)
             {
                 throw new CustomerManagerException("UpdateCustomer", ex);
-            }   
+            }
         }
     }
 }

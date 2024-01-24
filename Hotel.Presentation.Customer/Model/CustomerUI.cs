@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace Hotel.Presentation.Customer.Model
 {
     public class CustomerUI : INotifyPropertyChanged
@@ -36,8 +37,9 @@ namespace Hotel.Presentation.Customer.Model
         public string Email { get { return _email; } set { _email = value; OnPropertyChanged(); } }
         public string Address { get; set; }
         private string _phone;
-        public string Phone { get { return _phone; } set {_phone=value; OnPropertyChanged();} }
+        public string Phone { get { return _phone; } set { _phone = value; OnPropertyChanged(); } }
         public int NrOfMembers { get; set; }
+
         private void OnPropertyChanged(string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -48,15 +50,21 @@ namespace Hotel.Presentation.Customer.Model
         public Hotel.Domain.Model.Customer ToCustomer()
         {
             ContactInfo contactInfo = new ContactInfo(Email, Phone, new Address(Address));
-            Hotel.Domain.Model.Customer customer = new Hotel.Domain.Model.Customer(Name, contactInfo);
-            return customer;
+            return new Hotel.Domain.Model.Customer(Name, contactInfo);
+            ;
         }
 
-        public static CustomerUI FromCustomer(Hotel.Domain.Model.Customer customer)
+        public static CustomerUI DTOCustomerToUI(Hotel.Domain.Model.Customer customer)
         {
             // Note: This method assumes that the provided Customer has a non-null Contact.
+            int id = customer.Id;
+            string name = customer.Name;
+            string email = customer.Contact.Email;
             Address address = customer.Contact.Address;
-            return new CustomerUI(customer.Id, customer.Name, customer.Contact.Email, address.ToAddressLine(), customer.Contact.Phone, customer.GetMembers().Count);
+            string phone = customer.Contact.Phone;
+            int nrOfMembers = customer.GetMembers().Count;
+
+            return new CustomerUI(id, name, email, address.ToAddressLine(), phone, nrOfMembers);
         }
 
     }

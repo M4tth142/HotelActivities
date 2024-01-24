@@ -8,7 +8,7 @@ namespace Hotel.Presentation.Customer.Model
     public class ActivityUI : INotifyPropertyChanged
     {
         //uit
-        public ActivityUI(string name, string description, int availableSlots) 
+        public ActivityUI(string name, string description, int availableSlots)
         {
             Name = name;
             Description = description;
@@ -48,17 +48,16 @@ namespace Hotel.Presentation.Customer.Model
         public event PropertyChangedEventHandler? PropertyChanged;
 
 
-        public static ActivityUI FromDatabaseActivity(Activity databaseActivity)
+        public static ActivityUI DTOActivityToUI(Activity Activity)
         {
             // Concatenate the desired properties from the database activity
-            string name = databaseActivity.Title;
-            string description = $"{databaseActivity.Email}, {databaseActivity.Location}, {databaseActivity.Phone}, {databaseActivity.Description}";
-            int availableSlots = databaseActivity.AvailableSlots;
+            string name = Activity.Title;
+            string fullDescription = $"{Activity.Email}, {Activity.Location}, {Activity.Phone}, {Activity.Description}";
+            int availableSlots = Activity.AvailableSlots;
+            var activityUi = new ActivityUI(name, fullDescription, availableSlots);
 
             // Create and return a new ActivityUI object
-            return new ActivityUI(name, description, availableSlots);
+            return activityUi;
         }
-
-
     }
 }

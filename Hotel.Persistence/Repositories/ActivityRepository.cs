@@ -4,6 +4,7 @@ using Hotel.Persistence.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Numerics;
@@ -19,13 +20,18 @@ namespace Hotel.Persistence.Repositories
         {
             this.connectionString = connectionString;
         }
-
-        public IReadOnlyList<Activity> GetActivity(string filter)
+        /// <summary>
+        /// get a list of activities
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        /// <exception cref="ActivityRepositoryException"></exception>
+        public IReadOnlyList<Hotel.Domain.Model.Activity> GetActivity(string filter)
         {
             try
             {
-                List<Activity> activities = new List< Activity>();
-                string sql = "SELECT id, name, email, address, phone, description FROM Activity ";
+                List<Hotel.Domain.Model.Activity> activities = new List<Hotel.Domain.Model.Activity>();
+                string sql = "SELECT id, name, email, address, phone, description,availableSlots FROM Activity ";
                 if (!string.IsNullOrWhiteSpace(filter))
                 {
                     sql += " AND (id LIKE @filter OR name LIKE @filter)";
@@ -44,8 +50,8 @@ namespace Hotel.Persistence.Repositories
                         {
                             int id = Convert.ToInt32(reader["ID"]);
                             //string description = (string)reader["email"] + (string)reader["address"] + (string)reader["phone"] + (string)reader["description"];
-                            Activity activity = new Activity(id, (string)reader["name"],(string)reader["email"], (string)reader["address"], (string)reader["phone"],(string)reader["description"], (int)reader["availableSlots"]);
-                            
+                            Hotel.Domain.Model.Activity activity = new Hotel.Domain.Model.Activity(id, (string)reader["name"], (string)reader["email"], (string)reader["address"], (string)reader["phone"], (string)reader["description"], (int)reader["availableSlots"]);
+
                             activities.Add(activity);
                         }
                     }
@@ -58,8 +64,12 @@ namespace Hotel.Persistence.Repositories
                 throw new ActivityRepositoryException("GetActivities", ex);
             }
         }
-
-        public void AddActivity(Activity activity)
+        /// <summary>
+        /// add a new activity
+        /// </summary>
+        /// <param name="activity"></param>
+        /// <exception cref="ActivityRepositoryException"></exception>
+        public void AddActivity(Hotel.Domain.Model.Activity activity)
         {
             try
             {
@@ -89,7 +99,7 @@ namespace Hotel.Persistence.Repositories
             catch (Exception ex) { throw new ActivityRepositoryException("AddActivity", ex); }
         }
 
-        
+
 
         // You can implement other methods like DeleteActivity, UpdateActivity, if needed.
     }

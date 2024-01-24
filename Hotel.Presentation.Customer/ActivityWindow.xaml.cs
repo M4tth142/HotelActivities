@@ -11,32 +11,51 @@ namespace Hotel.Presentation.Customer
 {
     public partial class ActivityWindow : Window
     {
-        private ObservableCollection<ActivityUI> activityUI;
-        //private ObservableCollection<ActivityUI> activityUIDescription;
+        private ObservableCollection<ActivityUI> activityUIs;
+        private ObservableCollection<MemberUI> members;
+
 
         private ActivityManager activityManager;
+        private MemberManager memberManager;
 
-        public ActivityWindow()
+        public ActivityWindow(CustomerUI customer)
         {
             InitializeComponent();
 
             activityManager = new ActivityManager(RepositoryFactory.ActivityRepository);
+            memberManager = new MemberManager(RepositoryFactory.MemberRepository);
+
 
             // Load activities into the ObservableCollection
-            activityUI = new ObservableCollection<ActivityUI>(activityManager.GetActivities(null).Select(x => new ActivityUI(x.Title,x.Description,x.AvailableSlots)));
-            //activityUIDescription = new ObservableCollection<ActivityUI>(activityManager.GetActivities(null).Select(x => new ActivityUI(x.Description)));
+            activityUIs = new ObservableCollection<ActivityUI>(activityManager.GetActivities(null).Select(x => new ActivityUI(x.Title, x.Description, x.AvailableSlots)));
+
+            // Check if customer.Id has a value before using it
+            if (customer.Id.HasValue)
+            {
+                // Assuming memberManager is initialized somewhere in your code
+                members = new ObservableCollection<MemberUI>(memberManager.GetMember(null).Select(x => new MemberUI(x.Name)));
+            }
+            else
+            {
+                // Handle the case where customer.Id is null (if needed)
+                members = new ObservableCollection<MemberUI>();
+            }
 
             // Set the item sources for the DataGrids
-            ActivityDataGrid.ItemsSource = activityUI;
+            ActivityDataGrid.ItemsSource = activityUIs;
+            MembersDataGrid.ItemsSource = members;
             //DescriptionsDataGrid.ItemsSource = activityUIDescription;
 
             // Event handler for TitlesDataGrid selection changed
             ActivityDataGrid.SelectionChanged += TitlesDataGrid_SelectionChanged;
+            MembersDataGrid.SelectionChanged += TitlesDataGrid_SelectionChanged;
+
         }
+
 
         private void TitlesDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            
+
         }
 
         // Existing event handlers...
@@ -48,7 +67,8 @@ namespace Hotel.Presentation.Customer
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
-            // Add your logic for searching here
+            activityUIs = new ObservableCollection<ActivityUI>(activityManager.GetActivities(SearchTextBox.Text).Select(x => new ActivityUI(x.Title ,x.Description,x.AvailableSlots)));
+            ActivityDataGrid.ItemsSource = activityUIs;
         }
 
         private void NewButton_Click(object sender, RoutedEventArgs e)

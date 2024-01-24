@@ -97,7 +97,7 @@ namespace Hotel.Presentation.Customer
 
         private void MenuItemBookActivity_Click(object sender, RoutedEventArgs e)
         {
-            ActivityWindow activityWindow = new ActivityWindow();
+            ActivityWindow activityWindow = new ActivityWindow((CustomerUI)CustomerDataGrid.SelectedItem);
             activityWindow.Show();
 
             //activityWindow.ShowDialog(); // Use ShowDialog if you want it as a modal window
